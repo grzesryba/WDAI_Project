@@ -1,30 +1,8 @@
-interface Project {
-  title: string;
-  description: string;
-  image: string;
-}
+import { useContext } from "react";
+import { ProjectsContext } from "./ProjectsContext";
 
 const Projects: React.FC = () => {
-  const projects: Project[] = [
-    {
-      title: "Prosthetic Hand Project",
-      description: "3D printed prosthetic hands for children in need",
-      image:
-        "https://images.unsplash.com/photo-1576615278693-f8e095e37e01?auto=format&fit=crop&w=500",
-    },
-    {
-      title: "Campus Innovation Hub",
-      description: "Creating a makerspace for engineering students",
-      image:
-        "https://images.unsplash.com/photo-1581092160562-40aa08e78837?auto=format&fit=crop&w=500",
-    },
-    {
-      title: "Sustainable Housing",
-      description: "3D printed sustainable housing solutions",
-      image:
-        "https://images.unsplash.com/photo-1638444571685-e1ef9b9316c8?auto=format&fit=crop&w=500",
-    },
-  ];
+  const { projects } = useContext(ProjectsContext)!;
 
   return (
     <div className="container">

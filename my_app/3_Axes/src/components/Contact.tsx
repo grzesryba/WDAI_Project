@@ -13,7 +13,7 @@ const Contact: React.FC = () => {
           <h3>Get in Touch</h3>
           <div className="contact-detail">
             <i className="fas fa-map-marker-alt"></i>
-            <p>123 Engineering Drive, University Campus</p>
+            <p>D-17 AGH Campus</p>
           </div>
           <div className="contact-detail">
             <i className="fas fa-phone"></i>
@@ -21,7 +21,7 @@ const Contact: React.FC = () => {
           </div>
           <div className="contact-detail">
             <i className="fas fa-envelope"></i>
-            <p>info@deltapi3d.org</p>
+            <p>info@3axes.org</p>
           </div>
           <div className="contact-detail">
             <i className="fas fa-clock"></i>

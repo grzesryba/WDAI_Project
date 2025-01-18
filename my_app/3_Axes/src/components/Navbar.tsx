@@ -23,17 +23,20 @@ const Navbar: React.FC = () => {
 
   return (
     <nav className={`navbar ${isHome ? "transparent" : ""}`}>
-      <svg className="logo" viewBox="0 0 100 100">
-        <path fill="#00bcd4" d="M50 5 L95 30 L95 70 L50 95 L5 70 L5 30 Z" />
-        <text x="50" y="60" fontSize="30" fill="white" textAnchor="middle">
-          ΔΠ
-        </text>
-      </svg>
+      <img
+        src="https://images.ctfassets.net/hvenzvkwiy9m/1vZvtT6aOAd3vCn4yuUgte/98ea601f1aac2d3a633456579d605d5e/Logo_3AXES_g__wne.png"
+        alt=""
+        className="logo"
+      />
+
       <div className="nav-links">
         <Link to="/">Home</Link>
         <Link to="/about">About Us</Link>
         <Link to="/projects">Projects</Link>
         <Link to="/contact">Contact</Link>
+        {/*Link do admina w navbarze jest do wywalenia potem ale wygodniej sie testuje admin
+        page'a bo nie trzeba wpisywac w url'u*/}
+        <Link to="/admin">Admin</Link>
       </div>
     </nav>
   );

@@ -42,7 +42,7 @@ const About: React.FC = () => {
       </h2>
       <div className="about-content" data-aos="fade-up">
         <p>
-          Delta Pi 3D was founded in 2020 with the mission of bringing together
+          3AXES was founded in 2024 with the mission of bringing together
           passionate engineering students interested in 3D printing technology.
           Our fraternity provides resources, mentorship, and hands-on experience
           with cutting-edge 3D printing equipment.

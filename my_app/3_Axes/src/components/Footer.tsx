@@ -26,7 +26,7 @@ const Footer: React.FC = () => {
           <h3>Connect With Us</h3>
           <div className="social-links">
             <a
-              href="https://facebook.com"
+              href="https://www.facebook.com/profile.php?id=61569273524257"
               target="_blank"
               rel="noopener noreferrer"
             >
@@ -66,20 +66,19 @@ const Footer: React.FC = () => {
           <h3>Contact Information</h3>
           <div className="contact-info">
             <p>
-              <i className="fas fa-map-marker-alt"></i> 123 Engineering Drive,
-              University Campus
+              <i className="fas fa-map-marker-alt"></i> D-17 AGH Campus
             </p>
             <p>
               <i className="fas fa-phone"></i> (555) 123-4567
             </p>
             <p>
-              <i className="fas fa-envelope"></i> info@deltapi3d.org
+              <i className="fas fa-envelope"></i> info@3axes.org
             </p>
           </div>
         </div>
       </div>
       <div className="footer-bottom">
-        <p>2023 Delta Pi 3D | Engineering Excellence Through Innovation</p>
+        <p>2025 3AXES | Engineering Excellence Through Innovation</p>
       </div>
     </footer>
   );
