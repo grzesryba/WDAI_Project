@@ -1,10 +1,35 @@
 import React, { FormEvent } from "react";
 
 const Contact: React.FC = () => {
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    alert("Thank you for your message! We'll get back to you soon.");
+
+    const formData = new FormData(e.currentTarget);
+    const name = formData.get("name") as string;
+    const email = formData.get("email") as string;
+    const message = formData.get("message") as string;
+
+    try {
+      const response = await fetch('http://localhost:5000/send-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ name, email, message }),
+      });
+
+      if (response.ok) {
+        alert("Thank you for your message! We'll get back to you soon.");
+      } else {
+        alert('Something went wrong. Please try again later.');
+      }
+    } catch (error) {
+      console.error(error);
+      alert('Failed to send your message. Please try again later.');
+    }
   };
+
+
 
   return (
     <div className="contact-section">
@@ -36,11 +61,11 @@ const Contact: React.FC = () => {
           <h2>Send us a Message</h2>
           <div className="form-group">
             <i className="fas fa-user"></i>
-            <input type="text" placeholder="Your Name" required />
+            <input type="text" placeholder="Your Name" name="name" required />
           </div>
           <div className="form-group">
             <i className="fas fa-envelope"></i>
-            <input type="email" placeholder="Your Email" required />
+            <input type="email" placeholder="Your Email" name="email" required />
           </div>
           <div className="form-group">
             <i className="fas fa-pen"></i>
@@ -51,7 +76,7 @@ const Contact: React.FC = () => {
               required
             ></textarea>
           </div>
-          <button type="submit">Send Message</button>
+          <button type="submit" className="contact-button">Send Message</button>
         </form>
       </div>
     </div>

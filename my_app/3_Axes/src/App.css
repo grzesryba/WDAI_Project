@@ -408,22 +408,22 @@ textarea:focus {
     border-color: var(--accent);
 }
 
-/*button {*/
-/*    background: var(--primary);*/
-/*    color: white;*/
-/*    padding: 1rem 2rem;*/
-/*    border: none;*/
-/*    border-radius: 8px;*/
-/*    cursor: pointer;*/
-/*    transition: all 0.3s;*/
-/*    font-size: 1.1rem;*/
-/*    font-weight: 500;*/
-/*}*/
+.contact-button {
+    background: var(--primary);
+    color: white;
+    padding: 1rem 2rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 1.1rem;
+    font-weight: 500;
+}
 
-/*button:hover {*/
-/*    background: var(--secondary);*/
-/*    transform: translateY(-2px);*/
-/*}*/
+.contact-button:hover {
+    background: var(--secondary);
+    transform: translateY(-2px);
+}
 
 footer {
     background: var(--dark);

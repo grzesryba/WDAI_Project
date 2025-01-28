@@ -5,6 +5,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import multer from 'multer'
 import fs from "fs"
+import nodemailer from "nodemailer"
 
 const app = express();
 const PORT = 5000;
@@ -212,6 +213,36 @@ app.put("/projects/:id", upload.array("images"), (req, res) => {
 app.get('/protected', authenticateToken, (req, res) => {
     res.json({ message: 'Welcome to the protected route!', user: req.user });
 });
+
+
+
+app.post('/send-email', async (req, res) => {
+    const { name, email, message } = req.body;
+
+    try {
+        const transporter = nodemailer.createTransport({
+            service: 'gmail', // lub inny serwer SMTP
+            auth: {
+                user: '3axes.customer@gmail.com',
+                pass: 'xvzi oulu xuyu csaq',
+            },
+            port: 465,
+        });
+
+        await transporter.sendMail({
+            from: email,
+            to: 'grrybinski@gmail.com',
+            subject: `Wiadomość od ${name}`,
+            text: message,
+        });
+
+        res.status(200).json({ message: 'E-mail wysłany pomyślnie' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Błąd podczas wysyłania e-maila' });
+    }
+});
+
 
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
