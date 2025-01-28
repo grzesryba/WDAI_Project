@@ -1,51 +1,43 @@
-import { createContext, useContext, useReducer, ReactNode } from "react";
-
-interface User {
-  username: string;
-}
-
-interface AuthState {
-  isLoggedIn: boolean;
-  user: User | null;
-}
+import { createContext, ReactNode, useContext, useState } from "react";
+import axios from "axios";
 
 interface AuthContextType {
-  auth: AuthState;
-  dispatch: React.Dispatch<AuthAction>;
-}
-
-type AuthAction = { type: "LOGIN"; payload: User } | { type: "LOGOUT" };
-
-const initialAuthState: AuthState = {
-  isLoggedIn: false,
-  user: null,
-};
-
-function authReducer(state: AuthState, action: AuthAction): AuthState {
-  switch (action.type) {
-    case "LOGIN":
-      return {
-        isLoggedIn: true,
-        user: action.payload,
-      };
-    case "LOGOUT":
-      return {
-        isLoggedIn: false,
-        user: null,
-      };
-    default:
-      return state;
-  }
+  token: string | null;
+  login: (username: string, password: string) => Promise<void>;
+  logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [auth, dispatch] = useReducer(authReducer, initialAuthState);
+  const [token, setToken] = useState<string | null>(
+      sessionStorage.getItem("authToken") // Pobiera token z localStorage
+  );
+
+  const login = async (username: string, password: string) => {
+    try {
+      const response = await axios.post("http://localhost:5000/login", {
+        username,
+        password,
+      });
+      const token = response.data.token;
+      setToken(token);
+      sessionStorage.setItem("authToken", token); // Zapisuje token w sesioanStorage
+    } catch (err) {
+      console.error("Login failed:", err);
+      throw new Error("Invalid username or password");
+    }
+  };
+
+  const logout = () => {
+    setToken(null);
+    sessionStorage.removeItem("authToken"); // Usuwa token z localStorage
+  };
+
   return (
-    <AuthContext.Provider value={{ auth, dispatch }}>
-      {children}
-    </AuthContext.Provider>
+      <AuthContext.Provider value={{ token, login, logout }}>
+        {children}
+      </AuthContext.Provider>
   );
 }
 

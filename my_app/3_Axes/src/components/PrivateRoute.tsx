@@ -1,20 +1,17 @@
-import { useEffect, ReactNode } from "react";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "./AuthContext.tsx";
+import { ReactNode } from "react";
+import { Navigate } from "react-router-dom";
+import { useAuth } from "./AuthContext";
 
 interface PrivateRouteProps {
   children: ReactNode;
 }
 
 export function PrivateRoute({ children }: PrivateRouteProps) {
-  const { auth } = useAuth();
-  const navigate = useNavigate();
+  const { token } = useAuth();
 
-  useEffect(() => {
-    if (!auth.isLoggedIn) {
-      navigate("/admin");
-    }
-  }, [auth.isLoggedIn, navigate]);
+  if (!token) {
+    return <Navigate to="/admin" replace />;
+  }
 
-  return auth.isLoggedIn ? <>{children}</> : null;
+  return <>{children}</>;
 }
