@@ -16,6 +16,10 @@ const Projects: React.FC = () => {
     }, [location.pathname]);
 
     useEffect(() => {
+        AOS.init({
+            duration: 2000,
+            once: true
+        });
         const fetchProjects = async () => {
             try {
                 const response = await fetch("http://localhost:5000/projects");
@@ -32,7 +36,7 @@ const Projects: React.FC = () => {
 
     return (
         <div className="projects_background">
-            <div className="container">
+            <div className="project-container">
                 <h2 className="section-title" data-aos="fade-up">
                     Our Projects
                 </h2>
@@ -56,16 +60,16 @@ const Projects: React.FC = () => {
                                         backgroundImage: `url(${project.images[1]})`
                                     }}
                                 ></div>
-                                <div className="project_1_view">
-                                    <Link to={`/project/${project.id}`} className="view-project-link">
-                                        View Projekt
-                                    </Link>
-                                </div>
-                                <div className="project_1_desc">
+                                <div className="project_1_desc" data-aos="slide-right">
                                     <h3>
                                         {project.title}
                                     </h3>
                                     {project.short_desc}
+                                </div>
+                                <div className="project_1_view" data-aos="slide-left">
+                                    <Link to={`/project/${project.id}`} className="view-project-link">
+                                        View Projekt
+                                    </Link>
                                 </div>
                             </div>
                         ) : (
@@ -86,16 +90,16 @@ const Projects: React.FC = () => {
                                         backgroundImage: `url(${project.images[1]})`
                                     }}
                                 ></div>
-                                <div className="project_2_view">
-                                    <Link to={`/project/${project.id}`} className="view-project-link">
-                                        View Projekt
-                                    </Link>
-                                </div>
-                                <div className="project_2_desc">
+                                <div className="project_2_desc" data-aos="slide-left">
                                     <h3>
                                         {project.title}
                                     </h3>
                                     {project.short_desc}
+                                </div>
+                                <div className="project_2_view" data-aos="slide-right">
+                                    <Link to={`/project/${project.id}`} className="view-project-link">
+                                        View Projekt
+                                    </Link>
                                 </div>
                             </div>
                         )

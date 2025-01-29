@@ -11,12 +11,16 @@ function ProjectDetails() {
     const [project, setProject] = useState(null)
 
     useEffect(() => {
-        AOS.refresh();
+        AOS.init({
+            duration: 1500,
+            once: true
+        });
         const fetchProjects = async () => {
             try {
                 const response = await fetch(`http://localhost:5000/projects/${id}`);
                 const data = await response.json();
                 setProject(data);
+                AOS.refresh();
             } catch (error) {
                 console.error("Error fetching projects:", error);
             }
