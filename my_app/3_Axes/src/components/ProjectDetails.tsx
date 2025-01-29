@@ -61,14 +61,14 @@ function ProjectDetails() {
         <div className="projects_background">
             <div className="project-details ">
                 <div className="project-details-container">
-                    <h1 className="section-title" data-aos="fade-up">{project.title}</h1>
+                    <h1 className="project-section-title" data-aos="fade-up">{project.title}</h1>
                     <div className="project-details-image" data-aos="slide-right" style={{
                         backgroundImage: `url(${project.images[0]})`
                     }}>
                     </div>
                     <div className="project-details-desc" data-aos="slide-left">
-                        <h1>{project.title}</h1>
-                        <br/>
+                        {/*<h1>{project.title}</h1>*/}
+                        {/*<br/>*/}
                         <p>{project.long_desc}</p>
                     </div>
                 </div>

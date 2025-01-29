@@ -73,6 +73,7 @@ const Contact: React.FC = () => {
               className="form-text-area"
               rows={5}
               placeholder="Your Message"
+              name="message"
               required
             ></textarea>
           </div>

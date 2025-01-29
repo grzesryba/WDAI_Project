@@ -192,20 +192,43 @@ app.post('/login', (req, res) => {
 // Edycja projektu
 app.put("/projects/:id", upload.array("images"), (req, res) => {
     const { id } = req.params;
-    const { title, short_desc, long_desc } = req.body;
+    const { title, short_desc, long_desc, existingImages } = req.body;
 
-    // Walidacja
     if (!title || title.length > 100 || !short_desc || short_desc.length > 300 || !long_desc || long_desc.length > 1000) {
         return res.status(400).send("Invalid input data");
     }
 
-    const imagePaths = req.files.map((file) => `/uploads/${file.filename}`);
-    const query = `
-    UPDATE projects SET title = ?, short_desc = ?, long_desc = ?, images = ? WHERE id = ?
-  `;
-    db.query(query, [title, short_desc, long_desc, JSON.stringify(imagePaths), id], (err, result) => {
-        if (err) return res.status(500).send("Error updating project");
-        res.status(200).send("Project updated successfully");
+    const newImagePaths = req.files.map((file) => `/uploads/${file.filename}`);
+    const existingImagesArray = existingImages ? existingImages : [];
+
+    // **Zapobieganie duplikatom** – dodajemy tylko te obrazy, których jeszcze nie ma
+    const updatedImages = [...new Set([...existingImagesArray, ...newImagePaths])];
+
+    db.query("SELECT images FROM projects WHERE id = ?", [id], (err, results) => {
+        if (err) return res.status(500).send("Database error");
+
+        if (results.length === 0) {
+            return res.status(404).send("Project not found");
+        }
+
+        const oldImages = results[0].images || [];
+        const imagesToDelete = oldImages.filter(img => !updatedImages.includes(img));
+
+        imagesToDelete.forEach(img => {
+            const filePath = `.${img}`;
+            fs.unlink(filePath, (err) => {
+                if (err) console.error(`Error deleting file ${filePath}:`, err);
+            });
+        });
+
+        db.query(
+            "UPDATE projects SET title = ?, short_desc = ?, long_desc = ?, images = ? WHERE id = ?",
+            [title, short_desc, long_desc, JSON.stringify(updatedImages), id],
+            (err) => {
+                if (err) return res.status(500).send("Error updating project");
+                res.status(200).send("Project updated successfully");
+            }
+        );
     });
 });
 
@@ -229,11 +252,14 @@ app.post('/send-email', async (req, res) => {
             port: 465,
         });
 
+        console.log(email)
+        console.log(name)
+        console.log(message)
         await transporter.sendMail({
-            from: email,
+            from: `${email}`,
             to: 'grrybinski@gmail.com',
-            subject: `Wiadomość od ${name}`,
-            text: message,
+            subject: `Wiadomość od ${name} - ${email}`,
+            text: `${message}`,
         });
 
         res.status(200).json({ message: 'E-mail wysłany pomyślnie' });

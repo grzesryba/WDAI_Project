@@ -37,7 +37,7 @@ const Projects: React.FC = () => {
     return (
         <div className="projects_background">
             <div className="project-container">
-                <h2 className="section-title" data-aos="fade-up">
+                <h2 className="project-section-title" data-aos="fade-up">
                     Our Projects
                 </h2>
                 <div>

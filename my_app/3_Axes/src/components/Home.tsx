@@ -40,7 +40,7 @@ const Home: React.FC = () => {
                 </div>
             </div>
             <div className="container" data-aos="fade-up">
-                <h2 className="section-title">Welcome to 3AXES</h2>
+                <h2 className="home-section-title">Welcome to 3AXES</h2>
                 <p>
                     We are a fraternity dedicated to advancing 3D printing technology and
                     fostering innovation among engineering students.

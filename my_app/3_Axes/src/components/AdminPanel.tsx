@@ -34,6 +34,7 @@ export function AdminPanel() {
     for (const file of files) {
       formData.append("images", file);
     }
+    formData.append("existingImages", JSON.stringify(editingImages));
 
     try {
       const res = await fetch("http://localhost:5000/projects", {
@@ -74,8 +75,16 @@ export function AdminPanel() {
     const longDesc = form.elements.longDesc.value.trim();
     const files = form.elements.images.files;
 
-    if (title.length > 100 || shortDesc.length > 300 || longDesc.length > 1000) {
-      alert("Title, short description, or long description exceeds maximum length.");
+    if (title.length > 50) {
+      alert("Title exceeds maximum length(" + title.length + ">50).");
+      return;
+    }
+    if (shortDesc.length > 100) {
+      alert("Short description exceeds maximum length( " + shortDesc.length + ">100).");
+      return;
+    }
+    if (longDesc.length > 1000) {
+      alert("Long description exceeds maximum length(" + longDesc.length + ">1000).");
       return;
     }
 
