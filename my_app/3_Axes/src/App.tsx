@@ -1,35 +1,62 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import {BrowserRouter, Routes, Route} from "react-router-dom";
+import {useEffect} from "react";
+import AOS from "aos";
+import "aos/dist/aos.css";
+import Home from "./components/Home";
+import About from "./components/About";
+import Projects from "./components/Projects";
+import Contact from "./components/Contact";
+import Footer from "./components/Footer";
+import Navbar from "./components/Navbar";
+import {PrivateRoute} from "./components/PrivateRoute";
+import {Login} from "./components/Login";
+import {AdminPanel} from "./components/AdminPanel";
+import {AuthProvider} from "./components/AuthContext";
+import {ProjectsProvider} from "./components/ProjectsContext";
+import {ScrollToTop} from "./components/ScrollToTop";
+import ProjectDetails from "./components/ProjectDetails"
+import "./App.css";
 
 function App() {
-  const [count, setCount] = useState(0)
-
-  return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    useEffect(() => {
+        //Inicjalizacja AOS (biblioteka od animacji)
+        AOS.init({
+            duration: 1000,
+            once: true,
+            // Wylaczenie animacji na mobilkach
+            disable: "mobile",
+            startEvent: "load",
+        });
+    }, []);
+    return (
+        <AuthProvider>
+            <ProjectsProvider>
+                <BrowserRouter>
+                    <div>
+                        <ScrollToTop></ScrollToTop>
+                        <Navbar/>
+                        <Routes>
+                            <Route path="/" element={<Home/>}/>
+                            <Route path="/about" element={<About/>}/>
+                            <Route path="/projects" element={<Projects/>}/>
+                            <Route path="/contact" element={<Contact/>}/>
+                            <Route path="/admin" element={<Login/>}/>
+                            <Route path="/project/:id" element={<ProjectDetails/>}/>
+                            <Route
+                                path="/admin-page"
+                                element={
+                                    <PrivateRoute>
+                                        <AdminPanel/>
+                                    </PrivateRoute>
+                                }
+                            />
+                        </Routes>
+                        <Footer/>
+                    </div>
+                </BrowserRouter>
+            </ProjectsProvider>
+        </AuthProvider>
+    );
 }
 
-export default App
+export default App;
