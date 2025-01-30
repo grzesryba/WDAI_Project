@@ -63,10 +63,10 @@ const Navbar: React.FC = () => {
           <Link to="/contact" onClick={() => setIsMenuOpen(false)}>
             Contact
           </Link>
-          <Link to="/admin" onClick={() => setIsMenuOpen(false)}>
-            Admin
-          </Link>
-          <button onClick={toggleLanguage}>
+          {/*<Link to="/admin" onClick={() => setIsMenuOpen(false)}>*/}
+          {/*  Admin*/}
+          {/*</Link>*/}
+          <button className="lang-button" onClick={toggleLanguage}>
             {i18n.t('change_language')}
           </button>
         </div>

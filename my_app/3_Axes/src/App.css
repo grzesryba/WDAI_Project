@@ -22,7 +22,38 @@ body {
 }
 
 
+
                                                     /* NAVBAR */
+.nav-links button {
+    background: none;
+    border: none;
+    color: var(--light);
+    font-weight: 500;
+    font-size: 1.1rem;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.3s;
+    text-transform: uppercase;
+}
+
+.nav-links button::after {
+    content: "";
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: -5px;
+    left: 50%;
+    background: var(--accent);
+    transition: all 0.3s;
+    transform: translateX(-50%);
+}
+
+.nav-links button:hover::after {
+    width: 100%;
+}
+
+
+
 .navbar {
     display: flex;
     align-items: center;
