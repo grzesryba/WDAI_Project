@@ -1,12 +1,15 @@
 import {useContext, useEffect, useState} from "react";
 import AOS from "aos";
 import {Link, useLocation} from "react-router-dom";
+import { useTranslation } from 'react-i18next';
+import '../i18n'; // import pliku i18n.js
 
 const Projects: React.FC = () => {
     // const {projects} = useContext(ProjectsContext)!;
     const [projects, setProjects] = useState([]);
 
     const location = useLocation()
+    const { t } = useTranslation();
 
     useEffect(() => {
         const timeout = setTimeout(() => {
@@ -37,9 +40,7 @@ const Projects: React.FC = () => {
     return (
         <div className="projects_background">
             <div className="project-container">
-                <h2 className="project-section-title" data-aos="fade-up">
-                    Our Projects
-                </h2>
+                <h2 className="project-section-title" data-aos="fade-up">{t('project_header')}</h2>
                 <div>
                     {projects.map((project, index) => {
                         return index % 2 == 0 ? (

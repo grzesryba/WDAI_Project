@@ -1,6 +1,11 @@
 import React, { FormEvent } from "react";
+import {useTranslation} from "react-i18next";
+import '../i18n';
 
 const Contact: React.FC = () => {
+
+  const { t } = useTranslation();
+
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -35,7 +40,7 @@ const Contact: React.FC = () => {
     <div className="contact-section">
       <div className="contact-container">
         <div className="contact-info-card" data-aos="fade-right">
-          <h3>Get in Touch</h3>
+          <h3>{t('contact_header')}</h3>
           <div className="contact-detail">
             <i className="fas fa-map-marker-alt"></i>
             <p>D-17 AGH Campus</p>
@@ -50,7 +55,7 @@ const Contact: React.FC = () => {
           </div>
           <div className="contact-detail">
             <i className="fas fa-clock"></i>
-            <p>Mon - Fri: 9:00 AM - 5:00 PM</p>
+            <p>{t('contact_date')}</p>
           </div>
         </div>
         <form
@@ -58,7 +63,7 @@ const Contact: React.FC = () => {
           data-aos="fade-left"
           onSubmit={handleSubmit}
         >
-          <h2>Send us a Message</h2>
+          <h2>{t('contact_send_header')}</h2>
           <div className="form-group">
             <i className="fas fa-user"></i>
             <input type="text" placeholder="Your Name" name="name" required />
@@ -77,7 +82,7 @@ const Contact: React.FC = () => {
               required
             ></textarea>
           </div>
-          <button type="submit" className="contact-button">Send Message</button>
+          <button type="submit" className="contact-button">{t('contact_send_button')}</button>
         </form>
       </div>
     </div>

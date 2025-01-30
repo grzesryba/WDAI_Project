@@ -1,5 +1,8 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useState, useTransition} from "react";
 import AOS from "aos";
+import { useTranslation } from 'react-i18next';
+import '../i18n'; // import pliku i18n.js
+
 //import 'aos/dist/aos.css';
 
 const Home: React.FC = () => {
@@ -14,6 +17,7 @@ const Home: React.FC = () => {
         "https://images.unsplash.com/photo-1581092160562-40aa08e78837?auto=format&fit=crop&w=1200",
         "https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1920"
     ]
+    const { t } = useTranslation();
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -40,11 +44,8 @@ const Home: React.FC = () => {
                 </div>
             </div>
             <div className="container" data-aos="fade-up">
-                <h2 className="home-section-title">Welcome to 3AXES</h2>
-                <p>
-                    We are a fraternity dedicated to advancing 3D printing technology and
-                    fostering innovation among engineering students.
-                </p>
+                <h2 className="home-section-title">{t('home_welcome')}</h2>
+                <p>{t('home_desc')}</p>
             </div>
         </div>
     );

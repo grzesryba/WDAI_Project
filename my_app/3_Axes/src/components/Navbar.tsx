@@ -1,10 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { useTranslation } from 'react-i18next';
+
 
 const Navbar: React.FC = () => {
   const location = useLocation();
   const isHome = location.pathname === "/";
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { i18n } = useTranslation();
+
+  const toggleLanguage = () => {
+    const newLang = i18n.language === 'pl' ? 'en' : 'pl';
+    i18n.changeLanguage(newLang);
+  };
 
   useEffect(() => {
     if (isHome) {
@@ -58,6 +66,9 @@ const Navbar: React.FC = () => {
           <Link to="/admin" onClick={() => setIsMenuOpen(false)}>
             Admin
           </Link>
+          <button onClick={toggleLanguage}>
+            {i18n.t('change_language')}
+          </button>
         </div>
       </nav>
   );
