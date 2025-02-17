@@ -3,12 +3,15 @@ import {useParams} from 'react-router-dom';
 import AOS from "aos";
 import ImageGallery from "react-image-gallery"
 import "react-image-gallery/styles/css/image-gallery.css"
+import {useTranslation} from "react-i18next";
 
 function ProjectDetails() {
-    const {id} = useParams(); // Pobieramy ID z URL
-    // const {projects} = useContext(ProjectsContext)!;
+    const {id} = useParams();
 
     const [project, setProject] = useState(null)
+
+    const {i18n} = useTranslation();
+    const currentLang = i18n.language;
 
     useEffect(() => {
         AOS.init({
@@ -32,6 +35,7 @@ function ProjectDetails() {
     if (!project) {
         return <p>Project not found!</p>;
     }
+    const projectTranslations = project.translations[currentLang] || project.translations['pl']; // Default to Polish if translation for current language is missing
 
     const images = []
 
@@ -42,34 +46,18 @@ function ProjectDetails() {
         })
     }
 
-    // const images = [
-    //     {
-    //         original: "https://images.unsplash.com/photo-1546188994-07c34f6e5e1b?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8ZnV0dXJlfGVufDB8fDB8fHww/1000/600",
-    //         thumbnail: "https://picsum.photos/id/1018/250/150/",
-    //     },
-    //     {
-    //         original: "https://picsum.photos/id/1015/1000/600/",
-    //         thumbnail: "https://picsum.photos/id/1015/250/150/",
-    //     },
-    //     {
-    //         original: "https://picsum.photos/id/1019/1000/600/",
-    //         thumbnail: "https://picsum.photos/id/1019/250/150/",
-    //     },
-    // ];
-
     return (
         <div className="projects_background">
             <div className="project-details ">
                 <div className="project-details-container">
-                    <h1 className="project-section-title" data-aos="fade-up">{project.title}</h1>
+                    <h1 className="project-section-title"
+                        data-aos="fade-up">{projectTranslations?.title || "Title not available"}</h1>
                     <div className="project-details-image" data-aos="slide-right" style={{
                         backgroundImage: `url(${project.images[0]})`
                     }}>
                     </div>
                     <div className="project-details-desc" data-aos="slide-left">
-                        {/*<h1>{project.title}</h1>*/}
-                        {/*<br/>*/}
-                        <p>{project.long_desc}</p>
+                        <p>{projectTranslations?.long_desc || "Description not available"}</p>
                     </div>
                 </div>
             </div>

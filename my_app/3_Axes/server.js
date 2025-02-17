@@ -26,24 +26,36 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-app.post('/projects', upload.array('images'), (req, res) => {
-    const { title, short_desc, long_desc } = req.body;
+app.post('/projects', upload.array("images"), (req, res) => {
 
-    // Pobranie ścieżek przesłanych plików
-    const imagePaths = req.files.map(file => `/uploads/${file.filename}`);
+    if (!fs.existsSync('uploads')) {
+        fs.mkdirSync('uploads');
+    }
+    let translations;
+    try {
+        translations = JSON.parse(req.body.translations);
+    } catch (error) {
+        return res.status(400).send('Invalid translations JSON');
+    }
+    const images = req.files;
+    // Upewnij się, że translations i images są w odpowiednim formacie (np. JSON)
+    if (!translations || !images) {
+        return res.status(400).send('Translations and images are required');
+    }
+    const imagesPath = images.map((i) => '/uploads/' + i.filename);
 
     // Zapis danych do bazy
     const query = `
-        INSERT INTO projects (title, short_desc, long_desc, images)
-        VALUES (?, ?, ?, ?)
+        INSERT INTO projects (translations, images)
+        VALUES (?, ?)
     `;
 
-    db.query(query, [title, short_desc, long_desc, JSON.stringify(imagePaths)], (err, result) => {
+    db.query(query, [JSON.stringify(translations), JSON.stringify(imagesPath)], (err, result) => {
         if (err) {
             console.error('Error inserting data:', err);
             res.status(500).send('Error saving project');
         } else {
-            res.status(200).send('Project saved successfully');
+            res.status(200).json({ message: 'Project saved successfully' });
         }
     });
 });
@@ -192,17 +204,43 @@ app.post('/login', (req, res) => {
 // Edycja projektu
 app.put("/projects/:id", upload.array("images"), (req, res) => {
     const { id } = req.params;
-    const { title, short_desc, long_desc, existingImages } = req.body;
+    const { translations, existingImages } = req.body;
 
-    if (!title || title.length > 100 || !short_desc || short_desc.length > 300 || !long_desc || long_desc.length > 1000) {
-        return res.status(400).send("Invalid input data");
+    if (!translations) {
+        return res.status(400).send("Missing translations data");
+    }
+
+    let parsedTranslations;
+    try {
+        parsedTranslations = JSON.parse(translations);
+    } catch (error) {
+        return res.status(400).send("Invalid translations format");
+    }
+
+    // Sprawdzenie długości pól dla każdego języka
+    for (const lang in parsedTranslations) {
+        const { title, short_desc, long_desc } = parsedTranslations[lang];
+
+        if (!title || title.length > 50) {
+            return res.status(400).send(`Title exceeds maximum length in ${lang}`);
+        }
+        if (!short_desc || short_desc.length > 100) {
+            return res.status(400).send(`Short description exceeds maximum length in ${lang}`);
+        }
+        if (!long_desc || long_desc.length > 1000) {
+            return res.status(400).send(`Long description exceeds maximum length in ${lang}`);
+        }
     }
 
     const newImagePaths = req.files.map((file) => `/uploads/${file.filename}`);
-    const existingImagesArray = existingImages ? existingImages : [];
+    const existingImagesArray = existingImages ? (Array.isArray(existingImages) ? existingImages : [existingImages]) : [];
 
-    // **Zapobieganie duplikatom** – dodajemy tylko te obrazy, których jeszcze nie ma
+    // Zapobieganie duplikatom
     const updatedImages = [...new Set([...existingImagesArray, ...newImagePaths])];
+
+    if (updatedImages.length < 2) {
+        return res.status(400).send("Please upload at least 2 images.");
+    }
 
     db.query("SELECT images FROM projects WHERE id = ?", [id], (err, results) => {
         if (err) return res.status(500).send("Database error");
@@ -211,7 +249,8 @@ app.put("/projects/:id", upload.array("images"), (req, res) => {
             return res.status(404).send("Project not found");
         }
 
-        const oldImages = results[0].images || [];
+        console.log(results[0].images)
+        const oldImages = results[0].images;
         const imagesToDelete = oldImages.filter(img => !updatedImages.includes(img));
 
         imagesToDelete.forEach(img => {
@@ -222,16 +261,16 @@ app.put("/projects/:id", upload.array("images"), (req, res) => {
         });
 
         db.query(
-            "UPDATE projects SET title = ?, short_desc = ?, long_desc = ?, images = ? WHERE id = ?",
-            [title, short_desc, long_desc, JSON.stringify(updatedImages), id],
+            "UPDATE projects SET translations = ?, images = ? WHERE id = ?",
+            [JSON.stringify(parsedTranslations), JSON.stringify(updatedImages), id],
             (err) => {
                 if (err) return res.status(500).send("Error updating project");
-                res.status(200).send("Project updated successfully");
+                res.status(200).json({ id, translations: parsedTranslations, images: updatedImages });
             }
         );
     });
 });
-
+;
 
 app.get('/protected', authenticateToken, (req, res) => {
     res.json({ message: 'Welcome to the protected route!', user: req.user });

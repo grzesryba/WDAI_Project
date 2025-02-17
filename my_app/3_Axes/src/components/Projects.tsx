@@ -5,11 +5,11 @@ import { useTranslation } from 'react-i18next';
 import '../i18n'; // import pliku i18n.js
 
 const Projects: React.FC = () => {
-    // const {projects} = useContext(ProjectsContext)!;
     const [projects, setProjects] = useState([]);
 
     const location = useLocation()
-    const { t } = useTranslation();
+    const { t,i18n } = useTranslation();
+    const currentLang = i18n.language;
 
     useEffect(() => {
         const timeout = setTimeout(() => {
@@ -43,6 +43,10 @@ const Projects: React.FC = () => {
                 <h2 className="project-section-title" data-aos="fade-up">{t('project_header')}</h2>
                 <div>
                     {projects.map((project, index) => {
+                        const projectTranslations = project.translations[currentLang] || project.translations['pl']; // wczytanie tłumaczenia w zależności od języka
+                        const title = projectTranslations?.title;
+                        const short_desc = projectTranslations?.short_desc;
+
                         return index % 2 == 0 ? (
                             <div className="post-card">
                                 <div
@@ -63,9 +67,9 @@ const Projects: React.FC = () => {
                                 ></div>
                                 <div className="project_1_desc" data-aos="slide-right">
                                     <h3>
-                                        {project.title}
+                                        {title}
                                     </h3>
-                                    {project.short_desc}
+                                    {short_desc}
                                 </div>
                                 <div className="project_1_view" data-aos="slide-left">
                                     <Link to={`/project/${project.id}`} className="view-project-link">
@@ -93,9 +97,9 @@ const Projects: React.FC = () => {
                                 ></div>
                                 <div className="project_2_desc" data-aos="slide-left">
                                     <h3>
-                                        {project.title}
+                                        {title}
                                     </h3>
-                                    {project.short_desc}
+                                    {short_desc}
                                 </div>
                                 <div className="project_2_view" data-aos="slide-right">
                                     <Link to={`/project/${project.id}`} className="view-project-link">
