@@ -6,11 +6,14 @@ import jwt from 'jsonwebtoken';
 import multer from 'multer'
 import fs from "fs"
 import nodemailer from "nodemailer"
+import dotenv from "dotenv"
+
+dotenv.config()
 
 const app = express();
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 
-const SECRET_KEY = 'your-secret-key'; // Zmień na lepszy klucz i trzymaj go w zmiennych środowiskowych
+const SECRET_KEY = process.env.JWT_KEY;
 
 app.use(cors());
 app.use(express.json())
@@ -24,7 +27,18 @@ const storage = multer.diskStorage({
     },
 });
 
-const upload = multer({ storage });
+const upload = multer({
+    storage: storage,
+    fileFilter: (req, file, cb) => {
+        const allowedTypes = ['image/jpeg','image/png','image/gif','image/webp','image/svg+xml'];
+
+        if (!allowedTypes.includes(file.mimetype)) {
+            alert("Invalid file type")
+            return cb(new Error('Invalid file type'), false);
+        }
+        cb(null, true);
+    }
+});
 
 app.post('/projects', upload.array("images"), (req, res) => {
 
@@ -55,7 +69,7 @@ app.post('/projects', upload.array("images"), (req, res) => {
             console.error('Error inserting data:', err);
             res.status(500).send('Error saving project');
         } else {
-            res.status(200).json({ message: 'Project saved successfully' });
+            res.status(200).json({message: 'Project saved successfully'});
         }
     });
 });
@@ -85,16 +99,12 @@ const hashPassword = async (password) => {
 // createAdminUser();
 
 
-
-
-
-
 // Połączenie z bazą danych
 const db = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: 'avXwYdiEYN7V1ri',
-    database: '3axes_db'
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME
 });
 
 db.connect(err => {
@@ -112,19 +122,18 @@ const authenticateToken = (req, res, next) => {
     const token = authHeader && authHeader.split(' ')[1];
 
     if (!token) {
-        return res.status(401).json({ message: 'Unauthorized' });
+        return res.status(401).json({message: 'Unauthorized'});
     }
 
     jwt.verify(token, 'your-secret-key', (err, user) => {
         if (err) {
-            return res.status(403).json({ message: 'Forbidden' });
+            return res.status(403).json({message: 'Forbidden'});
         }
 
         req.user = user; // Zapisujemy użytkownika w obiekcie req
         next();
     });
 };
-
 
 
 // Endpoint do pobierania projektów
@@ -140,13 +149,13 @@ app.get('/projects', (req, res) => {
 
 
 app.get('/projects/:id', (req, res) => {
-    const { id } = req.params;
+    const {id} = req.params;
 
     db.query('SELECT * FROM projects WHERE id = ?', [id], (err, results) => {
         if (err) {
             res.status(500).send(err);
         } else if (results.length === 0) {
-            res.status(404).json({ message: 'Project not found' });
+            res.status(404).json({message: 'Project not found'});
         } else {
             res.json(results[0]); // Zwracamy pierwszy wynik
         }
@@ -155,12 +164,12 @@ app.get('/projects/:id', (req, res) => {
 
 // Usuwanie projektu
 app.delete("/projects/:id", (req, res) => {
-    const { id } = req.params;
+    const {id} = req.params;
 
     // Pobierz zdjęcia projektu
     db.query("SELECT * FROM projects WHERE id = ?", [id], (err, results) => {
         if (err) return res.status(500).send(err);
-        if (results.length === 0) return res.status(404).json({ message: "Project not found" });
+        if (results.length === 0) return res.status(404).json({message: "Project not found"});
         const images = results[0].images
 
         // Usuń zdjęcia z systemu plików
@@ -176,13 +185,13 @@ app.delete("/projects/:id", (req, res) => {
 
 
 app.post('/login', (req, res) => {
-    const { username, password } = req.body;
+    const {username, password} = req.body;
 
     db.query('SELECT * FROM admin WHERE username = ?', [username], async (err, results) => {
-        if (err) return res.status(500).json({ error: 'Database error' });
+        if (err) return res.status(500).json({error: 'Database error'});
 
         if (results.length === 0) {
-            return res.status(401).json({ message: 'Invalid username or password' });
+            return res.status(401).json({message: 'Invalid username or password'});
         }
 
         const user = results[0];
@@ -190,21 +199,21 @@ app.post('/login', (req, res) => {
         // Weryfikacja hasła
         const isPasswordCorrect = await bcrypt.compare(password, user.password);
         if (!isPasswordCorrect) {
-            return res.status(401).json({ message: 'Invalid username or password' });
+            return res.status(401).json({message: 'Invalid username or password'});
         }
 
         // Generowanie tokena
-        const token = jwt.sign({ id: user.id, username: user.username }, SECRET_KEY, { expiresIn: '1h' });
+        const token = jwt.sign({id: user.id, username: user.username}, SECRET_KEY, {expiresIn: '1h'});
 
-        res.json({ token });
+        res.json({token});
     });
 });
 
 
 // Edycja projektu
 app.put("/projects/:id", upload.array("images"), (req, res) => {
-    const { id } = req.params;
-    const { translations, existingImages } = req.body;
+    const {id} = req.params;
+    const {translations, existingImages} = req.body;
 
     if (!translations) {
         return res.status(400).send("Missing translations data");
@@ -219,7 +228,7 @@ app.put("/projects/:id", upload.array("images"), (req, res) => {
 
     // Sprawdzenie długości pól dla każdego języka
     for (const lang in parsedTranslations) {
-        const { title, short_desc, long_desc } = parsedTranslations[lang];
+        const {title, short_desc, long_desc} = parsedTranslations[lang];
 
         if (!title || title.length > 50) {
             return res.status(400).send(`Title exceeds maximum length in ${lang}`);
@@ -265,28 +274,26 @@ app.put("/projects/:id", upload.array("images"), (req, res) => {
             [JSON.stringify(parsedTranslations), JSON.stringify(updatedImages), id],
             (err) => {
                 if (err) return res.status(500).send("Error updating project");
-                res.status(200).json({ id, translations: parsedTranslations, images: updatedImages });
+                res.status(200).json({id, translations: parsedTranslations, images: updatedImages});
             }
         );
     });
 });
-;
 
 app.get('/protected', authenticateToken, (req, res) => {
-    res.json({ message: 'Welcome to the protected route!', user: req.user });
+    res.json({message: 'Welcome to the protected route!', user: req.user});
 });
 
 
-
 app.post('/send-email', async (req, res) => {
-    const { name, email, message } = req.body;
+    const {name, email, message} = req.body;
 
     try {
         const transporter = nodemailer.createTransport({
             service: 'gmail', // lub inny serwer SMTP
             auth: {
-                user: '3axes.customer@gmail.com',
-                pass: 'xvzi oulu xuyu csaq',
+                user: process.env.EMAIL_USER,
+                pass: process.env.EMAIL_PASS,
             },
             port: 465,
         });
@@ -296,15 +303,15 @@ app.post('/send-email', async (req, res) => {
         console.log(message)
         await transporter.sendMail({
             from: `${email}`,
-            to: 'grrybinski@gmail.com',
+            to: '3axes.agh@gmail.com',
             subject: `Wiadomość od ${name} - ${email}`,
             text: `${message}`,
         });
 
-        res.status(200).json({ message: 'E-mail wysłany pomyślnie' });
+        res.status(200).json({message: 'E-mail wysłany pomyślnie'});
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: 'Błąd podczas wysyłania e-maila' });
+        res.status(500).json({message: 'Błąd podczas wysyłania e-maila'});
     }
 });
 
