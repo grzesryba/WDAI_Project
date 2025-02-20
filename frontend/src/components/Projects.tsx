@@ -1,13 +1,20 @@
-import {useContext, useEffect, useState} from "react";
+import {useEffect, useState} from "react";
 import AOS from "aos";
 import {Link, useLocation} from "react-router-dom";
 import { useTranslation } from 'react-i18next';
 import '../i18n';
-import dotenv from "dotenv"
 
+interface Project {
+    id: string;
+    translations: {
+        pl: { title: string; short_desc: string; long_desc: string };
+        en: { title: string; short_desc: string; long_desc: string };
+    };
+    images: string[];
+}
 
 const Projects: React.FC = () => {
-    const [projects, setProjects] = useState([]);
+    const [projects, setProjects] = useState<Project[]>([]);
 
     const location = useLocation()
     const { t,i18n } = useTranslation();
@@ -47,7 +54,7 @@ const Projects: React.FC = () => {
                 <h2 className="project-section-title" data-aos="fade-up">{t('project_header')}</h2>
                 <div>
                     {projects.map((project, index) => {
-                        const projectTranslations = project.translations[currentLang] || project.translations['pl']; // wczytanie tłumaczenia w zależności od języka
+                        const projectTranslations = project.translations?.[currentLang as keyof typeof project.translations] || project.translations?.['pl']; // wczytanie tłumaczenia w zależności od języka
                         const title = projectTranslations?.title;
                         const short_desc = projectTranslations?.short_desc;
 

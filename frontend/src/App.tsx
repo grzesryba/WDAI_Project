@@ -12,7 +12,6 @@ import {PrivateRoute} from "./components/PrivateRoute";
 import {Login} from "./components/Login";
 import {AdminPanel} from "./components/AdminPanel";
 import {AuthProvider} from "./components/AuthContext";
-import {ProjectsProvider} from "./components/ProjectsContext";
 import {ScrollToTop} from "./components/ScrollToTop";
 import ProjectDetails from "./components/ProjectDetails"
 import "./App.css";

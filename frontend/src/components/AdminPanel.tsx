@@ -1,11 +1,22 @@
-import {useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import {useTranslation} from "react-i18next";
 
+
+interface Project {
+    id: string;
+    translations: {
+        pl: { title: string; short_desc: string; long_desc: string };
+        en: { title: string; short_desc: string; long_desc: string };
+    };
+    images: string[];
+}
+
+
 export function AdminPanel() {
-    const [projects, setProjects] = useState([]);
-    const [editingProject, setEditingProject] = useState(null);
-    const [editingImages, setEditingImages] = useState([]);
-    const [newImages, setNewImages] = useState([]);
+    const [projects, setProjects] = useState<Project[]>([]);
+    const [editingProject, setEditingProject] = useState<Project | null>(null);
+    const [editingImages, setEditingImages] = useState<string[]>([]);
+    // const [newImages, setNewImages] = useState<File[]>([]);
     const {i18n} = useTranslation();
     const currentLang = i18n.language;
     const backendUrl = import.meta.env.REACT_APP_BACKEND_URL || 'http://localhost:5000';
@@ -18,18 +29,19 @@ export function AdminPanel() {
     }, []);
 
 
-    const handleAddProject = async (e) => {
+    const handleAddProject = async (e: React.FormEvent) => {
         e.preventDefault();
-        const form = e.currentTarget;
-        const titlePl = form.elements.titlePl.value.trim();
-        const shortDescPl = form.elements.shortDescPl.value.trim();
-        const longDescPl = form.elements.longDescPl.value.trim();
+        const form = e.currentTarget as HTMLFormElement;
+        const titlePl = (form.elements.namedItem("titlePl") as HTMLFormElement).value;
+        const shortDescPl = (form.elements.namedItem("shortDescPl") as HTMLFormElement).value;
+        const longDescPl = (form.elements.namedItem("longDescPl") as HTMLFormElement).value;
 
-        const titleEn = form.elements.titleEn.value.trim();
-        const shortDescEn = form.elements.shortDescEn.value.trim();
-        const longDescEn = form.elements.longDescEn.value.trim();
+        const titleEn = (form.elements.namedItem("titleEn") as HTMLFormElement)?.value || "";
+        const shortDescEn = (form.elements.namedItem("shortDescEn") as HTMLFormElement)?.value || "";
+        const longDescEn = (form.elements.namedItem("longDescEn") as HTMLFormElement)?.value || "";
 
-        const files = form.elements.images.files;
+        const imagesInput = form.elements.namedItem("images") as HTMLFormElement;
+        const files = imagesInput.files;
 
         if (files.length < 2) {
             alert("Please upload at least 2 images.");
@@ -43,6 +55,11 @@ export function AdminPanel() {
                     title: titlePl,
                     short_desc: shortDescPl,
                     long_desc: longDescPl,
+                },
+                en: {
+                    title: titleEn,
+                    short_desc: shortDescEn,
+                    long_desc: longDescEn,
                 }
             },
         };
@@ -57,7 +74,10 @@ export function AdminPanel() {
 
         const formData = new FormData();
         formData.append("translations", JSON.stringify(jsonData.translations))
-        Array.from(form?.elements.images.files).forEach((img) => formData.append("images", img));
+
+        if (imagesInput && imagesInput.files) {
+            Array.from<File>(imagesInput.files).forEach((img: File) => formData.append("images", img));
+        }
 
         try {
             const res = await fetch("http://localhost:5000/projects", {
@@ -74,7 +94,7 @@ export function AdminPanel() {
     };
 
 
-    const handleDeleteProject = async (id) => {
+    const handleDeleteProject = async (id: string) => {
         try {
             await fetch(`http://localhost:5000/projects/${id}`, {
                 method: "DELETE",
@@ -86,24 +106,27 @@ export function AdminPanel() {
     };
 
 
-    const handleEditProject = (project) => {
+    const handleEditProject = (project: Project) => {
         setEditingProject(project);
         setEditingImages(project.images); // Załaduj istniejące zdjęcia do edycji
-        setNewImages([]); // Resetuj nowo wybrane zdjęcia
+        // setNewImages([]); // Resetuj nowo wybrane zdjęcia
     };
 
 
-    const handleSaveEdit = async (e) => {
+    const handleSaveEdit = async (e: React.FormEvent) => {
         e.preventDefault();
-        const form = e.currentTarget;
+        const form = e.currentTarget as HTMLFormElement;
 
-        const titlePl = form.elements.titlePl.value.trim();
-        const shortDescPl = form.elements.shortDescPl.value.trim();
-        const longDescPl = form.elements.longDescPl.value.trim();
-        const titleEn = form.elements.titleEn.value.trim();
-        const shortDescEn = form.elements.shortDescEn.value.trim();
-        const longDescEn = form.elements.longDescEn.value.trim();
-        const files = form.elements.images.files;
+        const titlePl = (form.elements.namedItem("titlePl") as HTMLFormElement).value;
+        const shortDescPl = (form.elements.namedItem("shortDescPl") as HTMLFormElement).value;
+        const longDescPl = (form.elements.namedItem("longDescPl") as HTMLFormElement).value;
+
+        const titleEn = (form.elements.namedItem("titleEn") as HTMLFormElement)?.value;
+        const shortDescEn = (form.elements.namedItem("shortDescEn") as HTMLFormElement)?.value;
+        const longDescEn = (form.elements.namedItem("longDescEn") as HTMLFormElement)?.value;
+
+        const imagesInput = form.elements.namedItem("images") as HTMLFormElement;
+        const files = imagesInput.files
 
         if (titlePl.length > 50) {
             alert("Title exceeds maximum length(" + titlePl.length + ">50). (Polish)");
@@ -138,6 +161,11 @@ export function AdminPanel() {
                     title: titlePl,
                     short_desc: shortDescPl,
                     long_desc: longDescPl,
+                },
+                en: {
+                    title: titleEn,
+                    short_desc: shortDescEn,
+                    long_desc: longDescEn,
                 }
             },
         };
@@ -171,6 +199,10 @@ export function AdminPanel() {
         }
 
         try {
+            if (!editingProject) {
+                console.error("No project is being edited.");
+                return;
+            }
             const res = await fetch(`http://localhost:5000/projects/${editingProject.id}`, {
                 method: "PUT",
                 body: formData,
@@ -181,27 +213,29 @@ export function AdminPanel() {
             );
             setEditingProject(null);
             setEditingImages([]);
-            setNewImages([]);
+            // setNewImages([]);
         } catch (err) {
             console.error("Error editing project:", err);
         }
     };
 
 
-    const handleRemoveImage = (index) => {
+    const handleRemoveImage = (index: number) => {
         setEditingImages((prev) => prev.filter((_, i) => i !== index));
     };
 
 
-    const handleAddNewImages = () => {
-        setEditingImages((prev) => [...prev, ...newImages.map((file) => URL.createObjectURL(file))]);
-        setNewImages([]); // Wyczyść wybór nowych zdjęć
-    };
+    // const handleAddNewImages = () => {
+    //     setEditingImages((prev) => [...prev, ...newImages.map((file) => URL.createObjectURL(file))]);
+    //     setNewImages([]); // Wyczyść wybór nowych zdjęć
+    // };
 
 
-    const handleNewImageSelection = (e) => {
-        setNewImages([...e.target.files]);
-    };
+    // const handleNewImageSelection = (e: React.ChangeEvent<HTMLInputElement>) => {
+    //     if (e.target.files) {
+    //         setNewImages([...e.target.files]);
+    //     }
+    // };
 
 
     return (
@@ -307,7 +341,7 @@ export function AdminPanel() {
                                 name="images"
                                 className="form-control"
                                 multiple
-                                onChange={handleNewImageSelection}
+                                // onChange={handleNewImageSelection}
                             />
                             {/*{newImages.length > 0 && editingProject && (*/}
                             {/*    <button*/}
@@ -331,7 +365,7 @@ export function AdminPanel() {
                 <h3>Manage Projects</h3>
                 <div className="row g-4">
                     {projects.map((project) => {
-                        const translation = project.translations[currentLang];
+                        const translation = project.translations[currentLang as keyof typeof project.translations];
                         return (
                             <div key={project.id} className="col-md-6">
                                 <div className="card">

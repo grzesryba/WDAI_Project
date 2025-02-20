@@ -1,14 +1,26 @@
-import React, {useEffect, useState} from 'react';
+import {useEffect, useState} from 'react';
 import {useParams} from 'react-router-dom';
 import AOS from "aos";
 import ImageGallery from "react-image-gallery"
 import "react-image-gallery/styles/css/image-gallery.css"
 import {useTranslation} from "react-i18next";
 
+
+interface Project {
+    id: string;
+    translations: {
+        pl: { title: string; short_desc: string; long_desc: string };
+        en: { title: string; short_desc: string; long_desc: string };
+    };
+    images: string[];
+}
+
+
+
 function ProjectDetails() {
     const {id} = useParams();
 
-    const [project, setProject] = useState(null)
+    const [project, setProject] = useState<Project | null>(null)
 
     const {i18n} = useTranslation();
     const currentLang = i18n.language;
@@ -36,7 +48,7 @@ function ProjectDetails() {
     if (!project) {
         return <p>Project not found!</p>;
     }
-    const projectTranslations = project.translations[currentLang] || project.translations['pl']; // Default to Polish if translation for current language is missing
+    const projectTranslations = project.translations?.[currentLang as keyof typeof project.translations] || project.translations?.['pl']; // Default to Polish if translation for current language is missing
 
     const images = []
 
