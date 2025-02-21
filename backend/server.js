@@ -1,24 +1,25 @@
-import express from 'express'
-import cors from 'cors'
-import mysql from 'mysql2'
+import express from 'express';
+import cors from 'cors';
+import pkg from 'pg'; // Import the PostgreSQL client
+const { Pool } = pkg; // Destructure Pool from the imported module
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import multer from 'multer'
-import fs from "fs"
-import nodemailer from "nodemailer"
-import dotenv from "dotenv"
-import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
+import multer from 'multer';
+import fs from 'fs';
+import nodemailer from 'nodemailer';
+import dotenv from 'dotenv';
+import {fileURLToPath} from 'url';
+import {dirname, join} from 'path';
 
-dotenv.config()
+dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
 const SECRET_KEY = process.env.JWT_KEY;
 
-app.use(cors());
-app.use(express.json())
+app.use(cors({ origin: 'https://wdai-project-cirsx4ko3-3axes-projects.vercel.app/' }));
+app.use(express.json());
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -32,18 +33,17 @@ const storage = multer.diskStorage({
 const upload = multer({
     storage: storage,
     fileFilter: (req, file, cb) => {
-        const allowedTypes = ['image/jpeg','image/png','image/gif','image/webp','image/svg+xml'];
+        const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'];
 
         if (!allowedTypes.includes(file.mimetype)) {
-            alert("Invalid file type")
+            alert('Invalid file type');
             return cb(new Error('Invalid file type'), false);
         }
         cb(null, true);
-    }
+    },
 });
 
-app.post('/projects', upload.array("images"), (req, res) => {
-
+app.post('/projects', upload.array('images'), (req, res) => {
     if (!fs.existsSync('uploads')) {
         fs.mkdirSync('uploads');
     }
@@ -62,7 +62,7 @@ app.post('/projects', upload.array("images"), (req, res) => {
     // Zapis danych do bazy
     const query = `
         INSERT INTO projects (translations, images)
-        VALUES (?, ?)
+        VALUES ($1, $2)
     `;
 
     db.query(query, [JSON.stringify(translations), JSON.stringify(imagesPath)], (err, result) => {
@@ -85,40 +85,22 @@ const hashPassword = async (password) => {
     return await bcrypt.hash(password, saltRounds);
 };
 
-// // Wstawianie użytkownika (przykład):
-// const createAdminUser = async () => {
-//     const username = 'admin';
-//     const password = await hashPassword('twoje_super_tajne_haslo');
-//
-//     db.query('INSERT INTO admin (username, password) VALUES (?, ?)', [username, password], (err) => {
-//         if (err) {
-//             console.error('Error creating admin user:', err);
-//         } else {
-//             console.log('Admin user created successfully');
-//         }
-//     });
-// };
-//
-// // Wywołaj funkcję jednorazowo, aby dodać admina:
-// createAdminUser();
-
-
-// Połączenie z bazą danych
-const db = mysql.createConnection({
+// Połączenie z bazą danych PostgreSQL
+const db = new Pool({
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME
+    database: process.env.DB_NAME,
+    port: process.env.DB_PORT || 5432,
 });
 
-db.connect(err => {
+db.connect((err) => {
     if (err) {
         console.error('Database connection failed:', err);
         return;
     }
     console.log('Connected to the database!');
 });
-
 
 // Middleware do uwierzytelniania za pomocą tokena
 const authenticateToken = (req, res, next) => {
@@ -139,66 +121,63 @@ const authenticateToken = (req, res, next) => {
     });
 };
 
-
 // Endpoint do pobierania projektów
 app.get('/projects', (req, res) => {
     db.query('SELECT * FROM projects', (err, results) => {
         if (err) {
             res.status(500).send(err);
         } else {
-            res.json(results);
+            res.json(results.rows);
         }
     });
 });
 
-
 app.get('/projects/:id', (req, res) => {
     const {id} = req.params;
 
-    db.query('SELECT * FROM projects WHERE id = ?', [id], (err, results) => {
+    db.query('SELECT * FROM projects WHERE id = $1', [id], (err, results) => {
         if (err) {
             res.status(500).send(err);
-        } else if (results.length === 0) {
+        } else if (results.rows.length === 0) {
             res.status(404).json({message: 'Project not found'});
         } else {
-            res.json(results[0]); // Zwracamy pierwszy wynik
+            res.json(results.rows[0]); // Zwracamy pierwszy wynik
         }
     });
 });
 
 // Usuwanie projektu
-app.delete("/projects/:id", (req, res) => {
+app.delete('/projects/:id', (req, res) => {
     const {id} = req.params;
 
     // Pobierz zdjęcia projektu
-    db.query("SELECT * FROM projects WHERE id = ?", [id], (err, results) => {
+    db.query('SELECT * FROM projects WHERE id = $1', [id], (err, results) => {
         if (err) return res.status(500).send(err);
-        if (results.length === 0) return res.status(404).json({message: "Project not found"});
-        const images = results[0].images
+        if (results.rows.length === 0) return res.status(404).json({message: 'Project not found'});
+        const images = results.rows[0].images;
 
         // Usuń zdjęcia z systemu plików
-        images.forEach((path) => fs.unlink("." + path, (err) => console.error(err)));
+        images.forEach((path) => fs.unlink('.' + path, (err) => console.error(err)));
 
         // Usuń projekt z bazy
-        db.query("DELETE FROM projects WHERE id = ?", [id], (err) => {
-            if (err) return res.status(500).send("Error deleting project");
-            res.status(200).send("Project deleted successfully");
+        db.query('DELETE FROM projects WHERE id = $1', [id], (err) => {
+            if (err) return res.status(500).send('Error deleting project');
+            res.status(200).send('Project deleted successfully');
         });
     });
 });
 
-
 app.post('/login', (req, res) => {
     const {username, password} = req.body;
 
-    db.query('SELECT * FROM admin WHERE username = ?', [username], async (err, results) => {
+    db.query('SELECT * FROM admin WHERE username = $1', [username], async (err, results) => {
         if (err) return res.status(500).json({error: 'Database error'});
 
-        if (results.length === 0) {
+        if (results.rows.length === 0) {
             return res.status(401).json({message: 'Invalid username or password'});
         }
 
-        const user = results[0];
+        const user = results.rows[0];
 
         // Weryfikacja hasła
         const isPasswordCorrect = await bcrypt.compare(password, user.password);
@@ -213,21 +192,20 @@ app.post('/login', (req, res) => {
     });
 });
 
-
 // Edycja projektu
-app.put("/projects/:id", upload.array("images"), (req, res) => {
+app.put('/projects/:id', upload.array('images'), (req, res) => {
     const {id} = req.params;
     const {translations, existingImages} = req.body;
 
     if (!translations) {
-        return res.status(400).send("Missing translations data");
+        return res.status(400).send('Missing translations data');
     }
 
     let parsedTranslations;
     try {
         parsedTranslations = JSON.parse(translations);
     } catch (error) {
-        return res.status(400).send("Invalid translations format");
+        return res.status(400).send('Invalid translations format');
     }
 
     // Sprawdzenie długości pól dla każdego języka
@@ -245,28 +223,28 @@ app.put("/projects/:id", upload.array("images"), (req, res) => {
         }
     }
 
-    const newImagePaths = req.files.map((file) => `/uploads/${file.filename}`);
+    const newImagePaths = req.files.map((file) => '/uploads/' + file.filename);
     const existingImagesArray = existingImages ? (Array.isArray(existingImages) ? existingImages : [existingImages]) : [];
 
     // Zapobieganie duplikatom
     const updatedImages = [...new Set([...existingImagesArray, ...newImagePaths])];
 
     if (updatedImages.length < 2) {
-        return res.status(400).send("Please upload at least 2 images.");
+        return res.status(400).send('Please upload at least 2 images.');
     }
 
-    db.query("SELECT images FROM projects WHERE id = ?", [id], (err, results) => {
-        if (err) return res.status(500).send("Database error");
+    db.query('SELECT images FROM projects WHERE id = $1', [id], (err, results) => {
+        if (err) return res.status(500).send('Database error');
 
-        if (results.length === 0) {
-            return res.status(404).send("Project not found");
+        if (results.rows.length === 0) {
+            return res.status(404).send('Project not found');
         }
 
-        console.log(results[0].images)
-        const oldImages = results[0].images;
-        const imagesToDelete = oldImages.filter(img => !updatedImages.includes(img));
+        console.log(results.rows[0].images);
+        const oldImages = results.rows[0].images;
+        const imagesToDelete = oldImages.filter((img) => !updatedImages.includes(img));
 
-        imagesToDelete.forEach(img => {
+        imagesToDelete.forEach((img) => {
             const filePath = `.${img}`;
             fs.unlink(filePath, (err) => {
                 if (err) console.error(`Error deleting file ${filePath}:`, err);
@@ -274,10 +252,10 @@ app.put("/projects/:id", upload.array("images"), (req, res) => {
         });
 
         db.query(
-            "UPDATE projects SET translations = ?, images = ? WHERE id = ?",
+            'UPDATE projects SET translations = $1, images = $2 WHERE id = $3',
             [JSON.stringify(parsedTranslations), JSON.stringify(updatedImages), id],
             (err) => {
-                if (err) return res.status(500).send("Error updating project");
+                if (err) return res.status(500).send('Error updating project');
                 res.status(200).json({id, translations: parsedTranslations, images: updatedImages});
             }
         );
@@ -287,7 +265,6 @@ app.put("/projects/:id", upload.array("images"), (req, res) => {
 app.get('/protected', authenticateToken, (req, res) => {
     res.json({message: 'Welcome to the protected route!', user: req.user});
 });
-
 
 app.post('/send-email', async (req, res) => {
     const {name, email, message} = req.body;
@@ -319,8 +296,6 @@ app.post('/send-email', async (req, res) => {
     }
 });
 
-
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 });
-
