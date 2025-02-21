@@ -20,7 +20,7 @@ const Projects: React.FC = () => {
     const { t,i18n } = useTranslation();
     const currentLang = i18n.language;
 
-    const backendUrl = import.meta.env.REACT_APP_BACKEND_URL || 'http://localhost:5000';
+    const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
 
     useEffect(() => {
         const timeout = setTimeout(() => {
@@ -36,7 +36,7 @@ const Projects: React.FC = () => {
         });
         const fetchProjects = async () => {
             try {
-                const response = await fetch("http://localhost:5000/projects");
+                const response = await fetch(`${backendUrl}/projects`);
                 const data = await response.json();
                 setProjects(data);
                 AOS.refresh();

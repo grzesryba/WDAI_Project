@@ -22,7 +22,7 @@ export function AdminPanel() {
     const backendUrl = import.meta.env.REACT_APP_BACKEND_URL || 'http://localhost:5000';
 
     useEffect(() => {
-        fetch("http://localhost:5000/projects")
+        fetch(`${backendUrl}/projects`)
             .then((res) => res.json())
             .then((data) => setProjects(data))
             .catch((err) => console.error("Error fetching projects:", err));
@@ -80,7 +80,7 @@ export function AdminPanel() {
         }
 
         try {
-            const res = await fetch("http://localhost:5000/projects", {
+            const res = await fetch(`${backendUrl}/projects`, {
                 method: "POST",
                 body: formData,
             });
@@ -96,7 +96,7 @@ export function AdminPanel() {
 
     const handleDeleteProject = async (id: string) => {
         try {
-            await fetch(`http://localhost:5000/projects/${id}`, {
+            await fetch(`${backendUrl}/projects/${id}`, {
                 method: "DELETE",
             });
             setProjects((prev) => prev.filter((project) => project.id !== id));
@@ -203,7 +203,7 @@ export function AdminPanel() {
                 console.error("No project is being edited.");
                 return;
             }
-            const res = await fetch(`http://localhost:5000/projects/${editingProject.id}`, {
+            const res = await fetch(`${backendUrl}/projects/${editingProject.id}`, {
                 method: "PUT",
                 body: formData,
             });

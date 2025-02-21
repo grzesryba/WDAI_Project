@@ -33,7 +33,7 @@ function ProjectDetails() {
         });
         const fetchProjects = async () => {
             try {
-                const response = await fetch(`http://localhost:5000/projects/${id}`);
+                const response = await fetch(`${backendUrl}/projects/${id}`);
                 const data = await response.json();
                 setProject(data);
                 AOS.refresh();

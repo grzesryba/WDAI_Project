@@ -18,7 +18,16 @@ const PORT = process.env.PORT || 5000;
 
 const SECRET_KEY = process.env.JWT_KEY;
 
-app.use(cors({ origin: 'https://wdai-project-cirsx4ko3-3axes-projects.vercel.app/' }));
+app.use(cors({
+    origin: (origin, callback) => {
+        if (!origin || origin.endsWith('.vercel.app') || origin === 'http://localhost:3000') {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    credentials: true,
+}));
 app.use(express.json());
 
 const storage = multer.diskStorage({
