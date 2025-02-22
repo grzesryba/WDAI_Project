@@ -13,7 +13,7 @@ const Contact: React.FC = () => {
     const name = formData.get("name") as string;
     const email = formData.get("email") as string;
     const message = formData.get("message") as string;
-    const backendUrl = import.meta.env.REACT_APP_BACKEND_URL || 'http://localhost:5000';
+    const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
 
     try {
       const response = await fetch(`${backendUrl}/send-email`, {

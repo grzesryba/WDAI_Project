@@ -24,7 +24,7 @@ function ProjectDetails() {
 
     const {i18n} = useTranslation();
     const currentLang = i18n.language;
-    const backendUrl = import.meta.env.REACT_APP_BACKEND_URL || 'http://localhost:5000';
+    const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
 
     useEffect(() => {
         AOS.init({
@@ -54,8 +54,8 @@ function ProjectDetails() {
 
     for (let i = 0; i < project.images.length; i++) {
         images.push({
-            original: backendUrl+project.images[i],
-            thumbnail: backendUrl+project.images[i],
+            original: project.images[i],
+            thumbnail: project.images[i],
         })
     }
 
@@ -66,7 +66,7 @@ function ProjectDetails() {
                     <h1 className="project-section-title"
                         data-aos="fade-up">{projectTranslations?.title || "Title not available"}</h1>
                     <div className="project-details-image" data-aos="slide-right" style={{
-                        backgroundImage: `url(${backendUrl+project.images[0]})`
+                        backgroundImage: `url(${project.images[0]})`
                     }}>
                     </div>
                     <div className="project-details-desc" data-aos="slide-left">

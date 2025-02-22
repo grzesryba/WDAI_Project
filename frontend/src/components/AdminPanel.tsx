@@ -19,7 +19,7 @@ export function AdminPanel() {
     // const [newImages, setNewImages] = useState<File[]>([]);
     const {i18n} = useTranslation();
     const currentLang = i18n.language;
-    const backendUrl = import.meta.env.REACT_APP_BACKEND_URL || 'http://localhost:5000';
+    const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
 
     useEffect(() => {
         fetch(`${backendUrl}/projects`)
@@ -278,7 +278,7 @@ export function AdminPanel() {
               ></textarea>
                         </div>
 
-                        <h2>English (optional, if not entered, it will be automatically translated into Polish):</h2>
+                        <h2>English{/* (optional, if not entered, it will be automatically translated into Polish)*/}:</h2>
                         <div className="mb-3">
                             <input
                                 type="text"
@@ -315,7 +315,7 @@ export function AdminPanel() {
                                     {editingImages.map((image, index) => (
                                         <div key={index} className="position-relative">
                                             <img
-                                                src={backendUrl+image}
+                                                src={image}
                                                 alt={`Image ${index + 1}`}
                                                 className="img-thumbnail"
                                                 style={{width: "100px", height: "100px", objectFit: "cover"}}
@@ -371,7 +371,7 @@ export function AdminPanel() {
                                 <div className="card">
                                     <div
                                         style={{
-                                            backgroundImage: `url(${backendUrl+project.images[0]})`,
+                                            backgroundImage: `url(${project.images[0]})`,
                                         }}
                                         className="card-img-top"
                                     ></div>

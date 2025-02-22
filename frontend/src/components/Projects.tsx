@@ -65,7 +65,7 @@ const Projects: React.FC = () => {
                                     className="second_image_1 project_image"
                                     data-aos="zoom-in"
                                     style={{
-                                        backgroundImage: `url(${backendUrl+project.images[0]})`
+                                        backgroundImage: `url(${project.images[0]})`
                                     }}
                                 ></div>
                                 <div
@@ -73,7 +73,7 @@ const Projects: React.FC = () => {
                                     className="first_image_1 project_image"
                                     data-aos="reveal-clip-left"
                                     style={{
-                                        backgroundImage: `url(${backendUrl+project.images[1]})`
+                                        backgroundImage: `url(${project.images[1]})`
                                     }}
                                 ></div>
                                 <div className="project_1_desc" data-aos="slide-right">
@@ -95,7 +95,7 @@ const Projects: React.FC = () => {
                                     className="first_image_2 project_image"
                                     data-aos="reveal-clip-top"
                                     style={{
-                                        backgroundImage: `url(${backendUrl+project.images[0]})`
+                                        backgroundImage: `url(${project.images[0]})`
                                     }}
                                 ></div>
                                 <div
@@ -103,7 +103,7 @@ const Projects: React.FC = () => {
                                     className="second_image_2 project_image"
                                     data-aos="reveal-clip-right"
                                     style={{
-                                        backgroundImage: `url(${backendUrl+project.images[1]})`
+                                        backgroundImage: `url(${project.images[1]})`
                                     }}
                                 ></div>
                                 <div className="project_2_desc" data-aos="slide-left">
