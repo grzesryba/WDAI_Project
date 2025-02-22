@@ -66,6 +66,52 @@ db.connect((err) => {
     console.log('Connected to the database!');
 });
 
+
+// // Wstawianie użytkownika (przykład):
+// const createAdminUser = async () => {
+//     const username = 'admin';
+//     const password = await hashPassword('twoje_super_tajne_haslo');
+//
+//     db.query('INSERT INTO admin (username, password) VALUES (?, ?)', [username, password], (err) => {
+//         if (err) {
+//             console.error('Error creating admin user:', err);
+//         } else {
+//             console.log('Admin user created successfully');
+//         }
+//     });
+// };
+//
+// // Wywołaj funkcję jednorazowo, aby dodać admina:
+// createAdminUser();
+
+app.post('/login', (req, res) => {
+    const {username, password} = req.body;
+
+    db.query('SELECT * FROM admin WHERE username = $1', [username], async (err, results) => {
+        if (err) return res.status(500).json({error: 'Database error'});
+
+        if (results.length === 0) {
+            return res.status(401).json({message: 'Invalid username or password'});
+        }
+
+        const user = results.rows[0];
+
+        // Weryfikacja hasła
+        const isPasswordCorrect = await bcrypt.compare(password, user.password);
+        if (!isPasswordCorrect) {
+            return res.status(401).json({message: 'Invalid username or password'});
+        }
+
+        // Generowanie tokena
+        const token = jwt.sign({id: user.id, username: user.username}, SECRET_KEY, {expiresIn: '1h'});
+
+        res.json({token});
+    });
+});
+
+
+
+
 // Helper function to hash passwords
 const hashPassword = async (password) => {
     const saltRounds = 10;
