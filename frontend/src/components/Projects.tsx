@@ -40,6 +40,7 @@ const Projects: React.FC = () => {
             try {
                 const response = await fetch(`${backendUrl}/projects`);
                 const data = await response.json();
+                console.log(data)
                 setProjects(data);
                 AOS.refresh();
             } catch (error) {

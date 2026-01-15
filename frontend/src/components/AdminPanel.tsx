@@ -128,12 +128,12 @@ export function AdminPanel() {
         const imagesInput = form.elements.namedItem("images") as HTMLFormElement;
         const files = imagesInput.files
 
-        if (titlePl.length > 50) {
-            alert("Title exceeds maximum length(" + titlePl.length + ">50). (Polish)");
+        if (titlePl.length > 60) {
+            alert("Title exceeds maximum length(" + titlePl.length + ">60). (Polish)");
             return;
         }
-        if (shortDescPl.length > 100) {
-            alert("Short description exceeds maximum length( " + shortDescPl.length + ">100). (Polish)");
+        if (shortDescPl.length > 110) {
+            alert("Short description exceeds maximum length( " + shortDescPl.length + ">110). (Polish)");
             return;
         }
         if (longDescPl.length > 1000) {
@@ -141,11 +141,11 @@ export function AdminPanel() {
             return;
         }
 
-        if (titleEn && titleEn.length > 50) {
+        if (titleEn && titleEn.length > 60) {
             alert("Title exceeds maximum length(" + titleEn.length + ">50). (English)");
             return;
         }
-        if (shortDescEn && shortDescEn.length > 100) {
+        if (shortDescEn && shortDescEn.length > 110) {
             alert("Short description exceeds maximum length( " + shortDescEn.length + ">100). (English)");
             return;
         }

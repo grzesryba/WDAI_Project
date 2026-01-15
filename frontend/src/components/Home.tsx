@@ -12,12 +12,20 @@ const Home: React.FC = () => {
     }, []);
 
     const [currentSlider, setCurrentSlide] = useState(0)
-    const slides = [
-        "https://img.freepik.com/free-photo/designer-using-3d-printer_23-2151037152.jpg",
-        "https://images.unsplash.com/photo-1581092160562-40aa08e78837?auto=format&fit=crop&w=1200",
-        "https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1920"
-    ]
     const { t } = useTranslation();
+
+    const [slides, setSlides] = useState<string[]>([]);
+
+    useEffect(() => {
+        fetch(`${import.meta.env.VITE_BACKEND_URL}/api/home-slides`)
+            .then(res => {
+                const promise = res.json();
+                console.log(promise)
+                return promise
+            })
+            .then(setSlides)
+            .catch(console.error);
+    }, []);
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -31,7 +39,7 @@ const Home: React.FC = () => {
             <div
                 className="hero"
                 style={{
-                    backgroundImage: `url(${slides[currentSlider]})`,
+                    backgroundImage: `url(${slides[currentSlider] || 'https://res.cloudinary.com/drcjl0cys/image/upload/v1768476088/home2_uuyxyw.jpg'})`,
                     backgroundSize: "cover",
                     backgroundBlendMode: "overlay",
                     backgroundPosition: "center",

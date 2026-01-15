@@ -241,10 +241,10 @@ app.put('/projects/:id', upload.array('images'), (req, res) => {
     for (const lang in parsedTranslations) {
         const { title, short_desc, long_desc } = parsedTranslations[lang];
 
-        if (!title || title.length > 50) {
+        if (!title || title.length > 60) {
             return res.status(400).send(`Title exceeds maximum length in ${lang}`);
         }
-        if (!short_desc || short_desc.length > 100) {
+        if (!short_desc || short_desc.length > 110) {
             return res.status(400).send(`Short description exceeds maximum length in ${lang}`);
         }
         if (!long_desc || long_desc.length > 1000) {
@@ -329,3 +329,26 @@ app.post('/send-email', async (req, res) => {
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 });
+
+/////////////////// CLOUDINARY  ///////////////////////////////////////
+
+
+app.get('/api/home-slides', async (req, res) => {
+    try {
+        const result = await cloudinary.v2.api.resources({
+            type: 'upload',
+            prefix: '',
+        });
+
+        const homeSlides = result.resources
+            .filter(r => r.public_id.startsWith('home'))
+            .map(r => r.secure_url);
+
+        res.json(homeSlides);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Cannot fetch images' });
+    }
+});
+
+
