@@ -338,6 +338,7 @@ app.get('/api/home-slides', async (req, res) => {
         const result = await cloudinary.v2.api.resources({
             type: 'upload',
             prefix: '',
+            max_results: 1000
         });
 
         const homeSlides = result.resources
