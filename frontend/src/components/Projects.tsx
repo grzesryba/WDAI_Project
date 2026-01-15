@@ -22,6 +22,8 @@ const Projects: React.FC = () => {
 
     const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
 
+    console.log("backendURL", backendUrl)
+
     useEffect(() => {
         const timeout = setTimeout(() => {
         }, 500)
